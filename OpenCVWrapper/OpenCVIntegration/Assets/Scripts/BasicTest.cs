@@ -2,6 +2,12 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
+public struct XY
+{
+    public int x;
+    public int y;
+}
+
 public class BasicTest : MonoBehaviour
 {
     private WebCamTexture _inImage;
@@ -9,8 +15,8 @@ public class BasicTest : MonoBehaviour
     private Color32[] _pixels;
 
     [DllImport("OpenCVWrapper", EntryPoint = "Test")]
-    private static extern IntPtr Test(IntPtr imagePtr, 
-        [MarshalAs(UnmanagedType.I4)]int length, 
+    private static extern IntPtr Test(IntPtr imagePtr,
+        [MarshalAs(UnmanagedType.I4)]int length,
         [MarshalAs(UnmanagedType.I4)]out int resLength);
 
     // Use this for initialization
@@ -43,17 +49,22 @@ public class BasicTest : MonoBehaviour
 
         foreach (var xy in output)
         {
-            _outImage.SetPixel(xy.x, xy.y, Color.red);
-            _outImage.SetPixel(xy.x+1, xy.y, Color.red);
-            _outImage.SetPixel(xy.x+2, xy.y, Color.red);
-            _outImage.SetPixel(xy.x, xy.y+1, Color.red);
-            _outImage.SetPixel(xy.x, xy.y+2, Color.red);
-            _outImage.SetPixel(xy.x-1, xy.y, Color.red);
-            _outImage.SetPixel(xy.x-2, xy.y, Color.red);
-            _outImage.SetPixel(xy.x, xy.y-1, Color.red);
-            _outImage.SetPixel(xy.x, xy.y-2, Color.red);
+            PrintCrossOnTex(_outImage, xy, Color.cyan);
         }
         _outImage.Apply();
+    }
+
+    private void PrintCrossOnTex(Texture2D tex, XY xy, Color col)
+    {
+        tex.SetPixel(xy.x, xy.y, col);
+        tex.SetPixel(xy.x + 1, xy.y, col);
+        tex.SetPixel(xy.x + 2, xy.y, col);
+        tex.SetPixel(xy.x, xy.y + 1, col);
+        tex.SetPixel(xy.x, xy.y + 2, col);
+        tex.SetPixel(xy.x - 1, xy.y, col);
+        tex.SetPixel(xy.x - 2, xy.y, col);
+        tex.SetPixel(xy.x, xy.y - 1, col);
+        tex.SetPixel(xy.x, xy.y - 2, col);
     }
 
     private void MarshalUnmananagedArray2Struct<T>(IntPtr unmanagedArray, int length, out T[] mangagedArray)
@@ -66,10 +77,4 @@ public class BasicTest : MonoBehaviour
             mangagedArray[i] = (T)Marshal.PtrToStructure(new IntPtr(unmanagedArray.ToInt64() + i * size), typeof(T));
         }
     }
-}
-
-public struct XY
-{
-    public int x;
-    public int y;
 }
